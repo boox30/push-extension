@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="popup.css" />
+	</head>
+<body>
+<div id="msg">正在加载登录数据...</div>
+<div id="login_div" class="main">
+	<h2 id="login_title" class="title">ONYX书城 - 登录</h2>
+	<div class="content">
+		<ul id="form" class="meul">
+			<li>
+				<label>用户名：</label>
+				<input id="email" name="email" type="text" value="1500604549@qq.com" placeholder="邮箱" />
+			</li>
+			<li>
+				<label>&nbsp;密&nbsp;码：</label>
+				<input id="password" name="password" type="password" value="111111" />
+			</li>
+			<li>
+				<a id="index" href="#">进入ONYX书城官网</a>
+				<input id="btn_ok" value="登录" type="button">
+			</li>
+			<p id="error_msg">提示：密码错误请重新输入!</p>
+		</ul>
+	</div>
+</div>
+<div id="welcome" class="main">
+	<h2 id="welcome_title" class="title">Hello,ONYX书城！</h2>
+	<div class="content">
+		<ul class="meul">
+			<li>
+				<p>当前用户：<a href="#" id="userFullName">(张三)</a><a href="#" id="logOut">注销</a></p>
+			</li>
+			<li>
+				<input id="btn_push" value="PushToBoox" type="button"><em>（将网页发送到阅读器）</em>
+			</li>
+		</ul>
+		
+	</div>
+</div>
+</body>
+<script src="jquery-2.0.0.min.js"></script>
+<script src="jspdf/dist/jspdf.min.js"></script>
+<script src="popup.js"></script>
+</html>

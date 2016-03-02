@@ -1,0 +1,55 @@
+﻿body {
+	min-width: 250px;
+	background-image: url("skin.jpg");
+}
+.main{
+	margin:0 auto;
+	width: 250px;
+}
+#msg,#welcome,#login_div{
+	display: none;
+}
+.title{
+	text-align: center;
+}
+
+ul{
+	margin:0px auto;
+	padding:0px;
+}
+
+.content{
+	margin-left:20px;
+}
+
+ul.meul li{
+	list-style-type: none;
+	clear: both;
+	height:40px;
+}
+
+ul#form li label{
+	float:left;
+	display:block;
+	width:60px;
+}
+
+ul#form li input{
+	float:left;
+	width:150px;
+}
+
+ul#form li input#btn_ok{
+	float:right;
+	margin-right:20px;
+	width:60px;
+}
+#error_msg{
+	color:red;
+	margin:0 auto;
+	display:none;
+}
+#logOut{
+	float: right;
+	margin-right:20px;
+}
