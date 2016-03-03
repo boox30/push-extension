@@ -4,9 +4,9 @@ function setStoreCookieToken(token){
 	chrome.cookies.set({url:host_index, name:"token", value:token});
 }
 
-function getStoreCookieToken(callback, n){
+function getStoreCookieToken(callback){
 	return chrome.cookies.get({url:host_index, name:"token"}, function(cookie){
-		callback(cookie, n);
+		callback(cookie);
 	});
 }
 
@@ -44,7 +44,7 @@ $(document).ready(function(){
                  $("#btn_ok").attr("disabled",false);
                  initData(data);
                  welcome();
-                 synchronizedToStore();
+                 setLogin({token:data.sessionToken, fullName:data.main.fullName, email:data.main.email});
              },
              error:function(data){
              	$("#error_msg").show();
@@ -62,17 +62,13 @@ $(document).ready(function(){
 	});
 	
 	$("#logOut").click(function(){
-		localStorage["OnyxLoginInfo"] = JSON.stringify(login_info);
 		$("#login_div").show();
    		$("#welcome").hide();
-   		removeStoreCookieToken();
+   		removeLogin();
 	});
 	
 	$("#btn_push").click(function(){
-		// getCurrentUrl(push);
-
 		downUseNotEpub();
-		
 	});
 	
 	restore_status();
@@ -141,12 +137,13 @@ function initData(data){
 	localStorage["OnyxLoginInfo"] = JSON.stringify(login_info);
 }
 
-function welcome(token, n){
-	if(n){//1表示之前没有数据
+function welcome(token){
+	var localOptions = JSON.parse(localStorage["OnyxLoginInfo"]);
+	var lastLocalToken = localOptions["token"];
+	if(typeof(token) != "undefined" &&token != lastLocalToken){//用户变了
 		requestCurrentUserInfo(token);
 		return;
 	}
-	var localOptions = JSON.parse(localStorage["OnyxLoginInfo"]);
 	login_info.username = localOptions["username"];
     login_info.device_ids = localOptions["device_ids"];
     login_info.email = localOptions["email"];
@@ -170,7 +167,7 @@ function requestCurrentUserInfo(token){
          dataType: "json",
          success: function(data){
              initData(data);
-             welcome(token, 0);
+             welcome(token);
          },
          error:function(data){
 
@@ -187,81 +184,40 @@ function toLogin(){
 function restore_status()
 {
 	$("#msg").show();
-	getStoreCookieToken(checkCookie, 0);
+	getAutoLogin();
 }
 
-function checkCookie(cookie, n){
-	if(cookie == null || typeof(cookie.value) == "undefined"){
-		if(n){
-			toLogin();
-			return;
-		} 
-		//空的，弹出store网页,验证登录状态
-		// var logo = window.open(host_index + "/images/OnyxLogo.png");
-		// logo.close();
-		chrome.windows.create({url:host_index + "/images/OnyxLogo.png?type=getcookie", width:1, height:1},function(w) {
-			chrome.extension.onRequest.addListener(
-			  function(request, sender, sendResponse) {
-			    if (request.type == "onyx-getStorageOk"){
-			    	console.log("关闭网页id"+w.id);
-			    	chrome.windows.get(w.id, function(win){
-			    		chrome.windows.remove(win.id);
-			    	});
-			    	//再次检查 cookie
-					getStoreCookieToken(checkCookie, 1);
-			    }
+function getAutoLogin(){
+	chrome.tabs.create({url:host_index, selected : false}, function(tab){
+		chrome.tabs.executeScript(tab.id, {file : "cookie_get.js"}, function(){
+			chrome.tabs.remove(tab.id);
+			chrome.cookies.get({url:host_index, name:"token"}, function(cookie){
+				if(cookie == null || typeof(cookie.value) == "undefined"){
+					toLogin();
+				}else{
+					welcome(cookie.value);
+				}
+			});
+		});
+	});	
+}
+
+function removeLogin(){
+	chrome.tabs.create({url:host_index, selected : false}, function(tab){
+		chrome.tabs.executeScript(tab.id, {file : "cookie_remove.js"}, function(){
+			chrome.tabs.remove(tab.id);
+		});
+	});	
+}
+
+function setLogin(data){
+	chrome.tabs.create({url:host_index, selected : false}, function(tab){
+		chrome.tabs.executeScript(tab.id, {file : "cookie_set.js"}, function(){
+			chrome.tabs.sendRequest(tab.id, {type: "setCookie", token:data.token, fullName:data.fullName, email:data.email}, function(response) {
+				if(response.status == "ok"){
+					chrome.tabs.remove(tab.id);
+				}
 			  });
 		});
-		
-	}else{//有 cookie
-		welcome(cookie.value, n);
-	}
+	});	
 }
-
-function synchronizedToStore(){
-	chrome.extension.sendRequest({type: "ep-bg-saveLocalStorage", token: login_info.token, fullName: login_info.username, email: login_info.email}, function(response) {});
-}
-
-/*
-function push(title, url){
-	$("#btn_push").val(title);
-	var ids = login_info.device_ids;
-	for (id in ids){
-		pushEveryOne(id, title, url);
-	}
-}
-
-function pushEveryOne(id, title, url){
-	var args = {
-		"title":title,
-		"url":url
-	};
-	var data = {
-		"installationId":id,
-		"action":"",
-		"args":args
-	};
-	$.ajax({
-         type: "POST",
-         url: "https://store.onyx-international.com/api/1/push/learnCloud",
-         contentType:'application/json; charset=UTF-8',
-		 data: JSON.stringify(data),
-         dataType: "json",
-         success: function(data){
-             
-         },
-         error:function(data){
-			
-         }
-     });
-}
-*/
-/*
-function getCurrentUrl(push){
-    chrome.tabs.getSelected(function(tab){
-        var title = tab.title; 
-        var url = tab.url; 
-        push(title,url);
-    });
-}
-*/
