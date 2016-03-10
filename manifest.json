@@ -12,6 +12,6 @@
   "permissions" : ["activeTab", "tabs", "storage", "unlimitedStorage", "cookies", "<all_urls>", "http://*/*", "https://*/*"],
   "content_scripts":[{
 		"matches":["<all_urls>"],
-		"js":["jquery-2.0.0.min.js", "jspdf/html2canvas.js", "jspdf/dist/jspdf.min.js", "content_script.js"]
+		"js":["jquery-2.0.0.min.js", "content_script.js"]
 	}]
 }

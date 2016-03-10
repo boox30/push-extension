@@ -1,19 +1,5 @@
 var host_index = "https://store.onyx-international.com";
 
-function setStoreCookieToken(token){
-	chrome.cookies.set({url:host_index, name:"token", value:token});
-}
-
-function getStoreCookieToken(callback){
-	return chrome.cookies.get({url:host_index, name:"token"}, function(cookie){
-		callback(cookie);
-	});
-}
-
-function removeStoreCookieToken(){
-	chrome.cookies.remove({url:host_index, name:"token"});
-}
-
 var login_info =
 {
     "username": "",
@@ -35,7 +21,7 @@ $(document).ready(function(){
 		$("#error_msg").hide();
 		$.ajax({
              type: "POST",
-             url: "https://store.onyx-international.com/api/1/account/signin",
+             url: host_index + "/api/1/account/signin",
              contentType:'application/json; charset=UTF-8',
     		 data: JSON.stringify(data),
              dataType: "json",
@@ -87,11 +73,13 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 	if (request.type == "onyx-getcontent")	{
 		var title = request.title;
 		var content = request.content;
-		sendToServer(title, content);
+		var url = request.url;
+		sendToServer(title, content, url);
 	}else if(request.type == "epub-storage"){
 		var la=localStorage["lang"], link=0, fmt=localStorage["format"];
 		if (typeof la=="undefined") {
-			la=chrome.i18n.getMessage("lang");
+			// la=chrome.i18n.getMessage("lang");
+			la = "en";
 		}
 		var li=localStorage["link"];
 		if (typeof li!="undefined" && li=="0") {
@@ -101,14 +89,15 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 			fmt="epub";
 		}
 		sendResponse(
-			{"lang": la, "link": link, "format": fmt}
+			{"lang": la, "link": 1, "format": fmt}
 		);
 	}else{
 		sendResponse({});
 	}
 }); 
 
-function sendToServer(title, content){
+function sendToServer(title, content, url){
+	content = content + "<div id='originalSource'>原文地址：<a href='"+url+"' target='_self'>"+url+"</a></div>";
 	var data = {
 		"installationId":login_info.device_ids,
 		"title":title,
@@ -116,12 +105,13 @@ function sendToServer(title, content){
 	};
 	$.ajax({
          type: "POST",
-         url: "http://localhost:9000" + "/api/1/push/browerExtensionPush",
+         url: "http://192.168.0.36:9000" + "/api/1/push/browerExtensionPush",
          contentType:'application/json; charset=UTF-8',
 		 data: JSON.stringify(data),
          dataType: "json",
          success: function(data){
-             
+             $("#downUrl").text(data.url);
+             $("#downUrl").attr("href", data.url);
          },
          error:function(data){
 			
@@ -156,7 +146,6 @@ function welcome(token){
 }
 
 function requestCurrentUserInfo(token){
-	
 	$.ajax({
          type: "GET",
          url: host_index+"/api/1/account/me",

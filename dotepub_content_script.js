@@ -221,7 +221,8 @@ var dotEPUB = {
 		if (nimg==0){
 			return [e,""];
 		}
-		if(!confirm(dotEPUB.messages["imgs"][dotEPUB_lang])){
+		// modify by zc , not confirm , have image direct
+		if(0){
 			e=dotEPUB.imgRepl(e,targetList);
 			return [e,""];
 		}
@@ -265,7 +266,7 @@ var dotEPUB = {
 		html = html.replace(/<imgdotepub/g, '<img dotepub'); /* must be an image, not unknown tag, otherwise could be removed later by readability */
 		html = html.replace(/<imagedata /g, '<img '); //0.8.4
 		e.innerHTML = html;
-		return [e,"<dotEPUBimgs>"+links+"</dotEPUBimgs>"];
+		return [e,""];// modify by zc : old pass "<dotEPUBimgs>"+links+"</dotEPUBimgs>"
 	},
 
 	/* object, embed, iframe (google blogspots has iframe with src=www.youtube.com), video tags; youtube and vimeo */
@@ -366,7 +367,7 @@ var dotEPUB = {
 			}
 
 			// modify by zhangcong
-			chrome.extension.sendRequest({type: "onyx-getcontent", title: article.title, content: article.content}, function(response) {
+			chrome.extension.sendRequest({type: "onyx-getcontent", title: article.title, content: article.content, url: window.location.href}, function(response) {
 			  // console.log(response.farewell);
 			});
 			
