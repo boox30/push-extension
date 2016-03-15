@@ -1,4 +1,4 @@
-var host_index = "https://store.onyx-international.com";
+var host_index = "https://store.onyx-international.cn";
 
 var login_info =
 {
@@ -119,16 +119,29 @@ function sendToServer(title, content, url){
      });
 }
 
-function initData(data){
-	login_info.username = data.main.fullName;
-	login_info.device_ids = data.deviceIds;
-	login_info.email = data.main.email;
-	login_info.token = data.sessionToken;
+function initData(data, token){
+	if(typeof(data) != "undefined"){
+		login_info.username = data.main.fullName;
+		login_info.device_ids = data.deviceIds;
+		login_info.email = data.main.email;
+		if(typeof(token) != "undefined"){
+			login_info.token = token;
+		}else{
+			login_info.token = data.sessionToken;		
+		}
+	}
 	localStorage["OnyxLoginInfo"] = JSON.stringify(login_info);
 }
 
+function getLocalStorage(){
+	if(typeof(localStorage["OnyxLoginInfo"] == "undefined")){
+		initData();
+	}
+	return localStorage["OnyxLoginInfo"];
+}
+
 function welcome(token){
-	var localOptions = JSON.parse(localStorage["OnyxLoginInfo"]);
+	var localOptions = JSON.parse(getLocalStorage());
 	var lastLocalToken = localOptions["token"];
 	if(typeof(token) != "undefined" &&token != lastLocalToken){//用户变了
 		requestCurrentUserInfo(token);
@@ -155,7 +168,7 @@ function requestCurrentUserInfo(token){
          contentType:'application/json; charset=UTF-8',
          dataType: "json",
          success: function(data){
-             initData(data);
+             initData(data, token);
              welcome(token);
          },
          error:function(data){
