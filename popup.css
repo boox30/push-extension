@@ -18,23 +18,26 @@ ul{
 	padding:0px;
 }
 
-.content{
-	margin-left:20px;
+li{
+	list-style-type: none;
 }
 
-ul.meul li{
-	list-style-type: none;
+.content{
+	margin:0 10px;
+}
+
+ul.meul>li{
 	clear: both;
 	height:40px;
 }
 
-ul#form li label{
+ul#form>li label{
 	float:left;
 	display:block;
 	width:60px;
 }
 
-ul#form li input{
+ul#form>li input{
 	float:left;
 	width:150px;
 }
@@ -44,12 +47,39 @@ ul#form li input#btn_ok{
 	margin-right:20px;
 	width:60px;
 }
-#error_msg{
-	color:red;
+#prompt{
+	color:gray;
+	height:16px;
+}
+#prompt_msg{
 	margin:0 auto;
-	display:none;
 }
 #logOut{
 	float: right;
 	margin-right:20px;
+}
+#device_par{
+	height:auto;
+	padding: 5px;
+	margin-bottom:10px;
+	-webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    -o-border-radius: 2px;
+    border-radius: 2px;
+    -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    -o-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    background-color: #f4f4f4;
+    border: 0px solid white;
+}
+#device_ul li input[type="checkbox"]{
+	vertical-align: text-bottom;
+    margin-bottom: 1px;
+}
+#device_list{
+	padding: 5px;
+}
+#push-line{
+	height: 30px;
 }

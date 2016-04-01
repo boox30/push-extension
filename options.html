@@ -12,17 +12,17 @@
 		<ul id="form" class="meul">
 			<li>
 				<label>用户名：</label>
-				<input id="email" name="email" type="text" value="1500604549@qq.com" placeholder="邮箱" />
+				<input id="email" name="email" type="text" value="wsc@onyx-international.com" placeholder="邮箱" />
 			</li>
 			<li>
 				<label>&nbsp;密&nbsp;码：</label>
-				<input id="password" name="password" type="password" value="111111" />
+				<input id="password" name="password" type="password" value="67834416" />
 			</li>
 			<li>
 				<a id="index" href="#">进入ONYX书城官网</a>
 				<input id="btn_ok" value="登录" type="button">
 			</li>
-			<p id="error_msg">提示：密码错误请重新输入!</p>
+			
 		</ul>
 	</div>
 </div>
@@ -33,13 +33,16 @@
 			<li>
 				<p>当前用户：<a href="#" id="userFullName">(张三)</a><a href="#" id="logOut">注销</a></p>
 			</li>
-			<li>
+			<li id="push-line">
 				<input id="btn_push" value="PushToBoox" type="button"><em>（将网页发送到阅读器）</em>
 			</li>
-			<li><a href="#" id="downUrl">epub下载地址</a></li>
+			<li style="display:none;"><a href="#" id="downUrl">epub下载地址</a></li>
 		</ul>
 		
 	</div>
+</div>
+<div id="prompt">
+	<p id="prompt_msg">&nbsp;</p>
 </div>
 </body>
 <script src="jquery-2.0.0.min.js"></script>
