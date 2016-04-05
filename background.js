@@ -19,6 +19,8 @@ function changeUrl(url) {
 
 var include_host_array = ["example.cc","yuedu.baidu.com"];
 
+var current_capture;
+
 function getCatUrl(host, url){
 	var catUrl;
 	switch (host){
@@ -36,13 +38,42 @@ function getCatUrl(host, url){
 	return catUrl;
 }
 
+function pushRequest(url, data){
+	console.log("发送push");
+	$.ajax({
+         type: "POST",
+         url: url,
+         contentType:'application/json; charset=UTF-8',
+		 data: JSON.stringify(data),
+         dataType: "json",
+         success: function(data){
+            console.log("完成push，下载路径"+data.url);
+		    sendPushStatus(true);
+         },
+         error:function(data){
+         	console.log("push发送出错");
+         	sendPushStatus(false);
+         }
+     });
+}
+
+function sendPushStatus(status){
+	current_capture = null;
+	chrome.extension.sendRequest({type: "onyx-sendpush-suc",  status: status}, function(response) {
+	});
+}
+
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
-	if (request.type == "onyx-checkincludehost"){
+	if (request.type == "onyx-checkincludehost_pushstatus"){
 		var url = request.cur_url;
 		var caturl = changeUrl(url);
 		sendResponse(
-			{"caturl": caturl}
+			{"caturl": caturl, "current_capture": current_capture}
 		);
+	}else if(request.type == "onyx-sendpush"){
+		sendResponse({});
+		current_capture = request.data;
+		pushRequest(request.url, request.data);
 	}
 }); 
 

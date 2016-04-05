@@ -1,5 +1,5 @@
-var host_index = "https://store.onyx-international.cn";
-// var host_index = "http://192.168.0.36:9000";
+// var host_index = "https://store.onyx-international.cn";
+var host_index = "http://192.168.0.36:9000";
 var cookie_name = "ngStorage-g";
 
 var login_info =
@@ -63,8 +63,7 @@ $(document).ready(function(){
 	restore_status();
 	
 	$("#btn_push").click(function(){
-		console.log('dd '+caturl);
-		if(!checkEmpty(caturl)){//不为空
+		if(!checkEmpty(caturl)){//不为空, 发送至background去请求
 			sendToServer('', '', '');
 		}else{
 			downUseNotEpub();
@@ -88,6 +87,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 		var content = request.content;
 		var url = request.url;
 		sendToServer(title, content, url);
+		sendResponse({});
 	}else if(request.type == "epub-storage"){
 		var la=localStorage["lang"], link=0, fmt=localStorage["format"];
 		if (typeof la=="undefined") {
@@ -104,6 +104,14 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 		sendResponse(
 			{"lang": la, "link": 1, "format": fmt}
 		);
+	}else if(request.type == "onyx-sendpush-suc"){
+		if(request.status){
+			$("#prompt_msg").text("发送成功！");
+		}else{
+			$("#prompt_msg").text("服务器错误！");
+		}
+		$("#btn_push").attr("disabled",false);
+		sendResponse({});
 	}else{
 		sendResponse({});
 	}
@@ -121,6 +129,7 @@ function sendToServer(title, content, url){
 	}else{
 		$("#prompt_msg").text(" ");
 	}
+	
 	content = content + "<div class='originalSource'>原文地址：<a href='"+url+"' target='_self'>"+url+"</a></div>";
 	var data = {
 		"installationId":idsArr,
@@ -128,26 +137,15 @@ function sendToServer(title, content, url){
 		"content":content,
 		"url":caturl
 	};
-	
+	disablePushBtn();
+	chrome.extension.sendRequest({type: "onyx-sendpush",  url: host_index + "/api/1/push/learnCloud", data: data}, function(response) {
+	  
+	});
+}
+
+function disablePushBtn(){
 	$("#btn_push").attr("disabled",true);
 	$("#prompt_msg").text("正在生成电子书，请稍候...");
-	$.ajax({
-         type: "POST",
-         url: host_index + "/api/1/push/learnCloud",
-         contentType:'application/json; charset=UTF-8',
-		 data: JSON.stringify(data),
-         dataType: "json",
-         success: function(data){
-             $("#downUrl").text(data.url);
-             $("#downUrl").attr("href", data.url);
-             $("#prompt_msg").text("发送成功！");
-             $("#btn_push").attr("disabled",false);
-         },
-         error:function(data){
-         	$("#prompt_msg").text("服务器错误！");
-         	$("#btn_push").attr("disabled",false);
-         }
-     });
 }
 
 function getSelectinstallationIds(){
@@ -253,7 +251,7 @@ function initSelected(){
 }
 
 function checkEmpty(str){
-	if(typeof(str) == "undefined" || str == ''){
+	if(typeof(str) == "undefined" || str == null || str == ''){
 		return true;
 	}else{
 		return false;
@@ -288,11 +286,17 @@ function restore_status()
 
 function checkHost(){
 	chrome.tabs.getSelected(function(tabs){
-		chrome.extension.sendRequest({type: "onyx-checkincludehost", cur_url : tabs.url}, function(response) {
+		chrome.extension.sendRequest({type: "onyx-checkincludehost_pushstatus", cur_url : tabs.url}, function(response) {
 		  var caturl = response.caturl;
 		  if(!checkEmpty(caturl)){//不为空
 		  	$("#push-line > em").text("（支持整本书发送）");
 		  	this.caturl = caturl;
+		  }
+		  //检查pushstatus
+		  var current_cap = response.current_capture;
+		  console.log(current_cap);
+		  if(!checkEmpty(current_cap)){
+		  	disablePushBtn();
 		  }
 		});
 	});
