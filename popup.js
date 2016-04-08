@@ -1,5 +1,5 @@
-// var host_index = "https://store.onyx-international.cn";
-var host_index = "http://192.168.0.36:9000";
+var host_index = "https://store.onyx-international.cn";
+// var host_index = "http://192.168.0.64:9000";
 var cookie_name = "ngStorage-g";
 
 var login_info =
@@ -40,8 +40,12 @@ $(document).ready(function(){
                  welcome(cookie_user, 1);
              },
              error:function(data){
-             	$("#prompt_msg").text("密码错误请重新输入!");
-             	$("#btn_ok").attr("disabled",false);
+             	if(checkEmpty(data.code)){
+             		$("#prompt_msg").text("服务器未连接!");
+             	}else{
+             		$("#prompt_msg").text("密码错误请重新输入!");
+             	}
+         		$("#btn_ok").attr("disabled",false);
              }
          });
 	});
@@ -294,7 +298,6 @@ function checkHost(){
 		  }
 		  //检查pushstatus
 		  var current_cap = response.current_capture;
-		  console.log(current_cap);
 		  if(!checkEmpty(current_cap)){
 		  	disablePushBtn();
 		  }
