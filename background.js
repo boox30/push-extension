@@ -79,10 +79,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 		changeIconPlay();
 		isAllCapture = request.isAllCapture;
 		if(isAllCapture){//extension capture
-			// setTimeout(function(){
-				// console.log("开始动态图标"+iconPlayId);
-				// extensionRequestCapture(current_capture.url, current_capture.installationId);
-			// },100);
+			extensionRequestCapture(current_capture.url, current_capture.installationId, request.url);
 			console.log("background已经异步进行全本抓取！");
 		}else{//server capture
 			pushRequest(request.url, request.data);
@@ -138,13 +135,12 @@ function changeIconStop(){
 }
 
 
-function getBdydHrefList(url, list){
+function getBdydHrefList(url){
 	var book_title = '';
-	
+	var list = [];
 	$.ajax({
 		type : "get",
 		url : url,
-		async : false,
 		success : function(result){
 			var dom = $.parseHTML(result);
 		    var div = $(dom).filter(".catList");
@@ -158,82 +154,106 @@ function getBdydHrefList(url, list){
 		    	list.push([title,href]);
 		    });
 		    
-		    var pn = $(dom).find(".p_n a");
-		    $(pn).each(function() {
-		    	if($(this).text()=="下页"){
-		    		var href = $(this).attr("href");
-		    		getBdydHrefList(getUrlBaseUrl(url,href), list, book_title);
-		    	}
-		    });
+		    var pn = $(dom).find(".p_n a:contains(下页)");
+		    
+	    	if(pn.length>0){
+	    		var href = $(pn).attr("href");
+	    		getBdydHrefList(getUrlBaseUrl(url,href), list);
+	    	}else{//last done
+	    		downHrefList(book_title, list);
+	    	}
 		}
+		
 	});
 	return book_title;
 }
 
-function zipBdydHtml(list, book_title, idsArr){
+function zipBdydHtml(){
 	var zip = new JSZip();
 	zip.file("ids", JSON.stringify(idsArr));
     zip.file("title", book_title);
-    zip.file("total", ""+list.length);
-	$.each(list,function(n,value) {
-		var rclist = [];
-		getNextPage(rclist, value[1]);
-		zip.file(n+".title", value[0]);
-		zip.file(n+".html", combineHtml(rclist));
+    zip.file("total", ""+contentList.length);
+	$.each(contentList,function(n,value) {
+		zip.file(n+".title", urlList[n][0]);
+		zip.file(n+".html", addDivClass(value));
 	});
 	zip.generateAsync({type:"blob"})
 	.then(function(content) {
 	    // saveAs(content, "example4.zip");
-	    pushWithZip(content);
+	    pushWithZip(content, postUrl);
 	});
 }
 
-function combineHtml(rclist){
-	var html='';
-	$.each(rclist,function(n,value){
-		html += value;
-	});
+function pushWithZip(blob, postUrl){
+	var fd = new FormData();
+	fd.append("file", blob, "image.png");
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+	    if (xhr.readyState==4 && xhr.status==200){
+	    	sendPushStatus(true);
+	    }
+	};
+	xhr.open('POST', false?postUrl:'http://192.168.0.64:9000/api/1/push/learnCloudWithZip', true);//异步
+	xhr.send(fd);
+}
+
+function addDivClass(html){
 	return "<div class='r_c'>"+html+"</div>";
 }
 
-function getNextPage(list, baseHref){
+function getNextPage(contentList, baseHref, cur_index){
 	$.ajax({
 		type : "get",
 		url : baseHref,
-		async : false,
 		success : function(result){
 			var content = $(result).find(".r_c").html();
-			list.push(content);
-			var nextPage = $(result).find(".p_n a");
-			$(nextPage).each(function() {
-		    	if($(this).text()=="下页"){
-		    		var href = $(this).attr("href");
-		    		getNextPage(list, getUrlBaseUrl(baseHref, href));
-		    	}
-		    });
+			if(typeof(contentList[cur_index])=='undefined'){
+				contentList[cur_index] = content;
+			}else{
+				contentList[cur_index] += content;				
+			}
+			var nextPage = $(result).find(".p_n a:contains(下页)");
+	    	if(nextPage.length>0){
+	    		var href = $(nextPage).attr("href");
+	    		getNextPage(contentList, getUrlBaseUrl(baseHref, href), cur_index);
+	    	}else{// finished
+	    		nextChapter();
+	    	}
 		}
 	});
 }
 
-function pushWithZip(blob){
-	var fd = new FormData();
-	fd.append("file", blob, "image.png");
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', 'http://192.168.0.64:9000/api/1/push/learnCloudWithZip', false);//同步
-	xhr.send(fd);
-}
 
 function getUrlBaseUrl(url, href){
 	var p = url.indexOf("?");
 	return url.substring(0,p) + href;
 }
 
-function extensionRequestCapture(catUrl, idsArr){
-	var list = [];
-	var book_title = getBdydHrefList(catUrl, list);
-	//console.log(list);
-	// idsArr = ['123'];
-	zipBdydHtml(list,book_title, idsArr);
-	sendPushStatus(true);
+function extensionRequestCapture(catUrl, ids, postUrl){
+	this.idsArr = ids;
+	this.postUrl = postUrl;
+	contentList = [];
+	urlList = [];
+	cur_chapter_index = 0;
+	getBdydHrefList(catUrl);
 }
 
+var idsArr = [];
+var postUrl = '';
+var contentList = [];
+var book_title = '';
+var urlList = [];
+var cur_chapter_index = 0;
+function downHrefList(book_title, urlList){
+	this.book_title = book_title;
+	this.urlList = urlList;
+	nextChapter();
+}
+function nextChapter(){
+	if(cur_chapter_index == urlList.length){//finished
+		zipBdydHtml();
+		return;
+	}
+	getNextPage(contentList, urlList[cur_chapter_index][1], cur_chapter_index);
+	cur_chapter_index++;	
+}
