@@ -72,11 +72,22 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 		sendResponse(
 			{"caturl": caturl, "current_capture": current_capture}
 		);
+		console.log("background完成了host检测！");
 	}else if(request.type == "onyx-sendpush"){
 		sendResponse({});
 		current_capture = request.data;
 		changeIconPlay();
-		pushRequest(request.url, request.data);
+		isAllCapture = request.isAllCapture;
+		if(isAllCapture){//extension capture
+			// setTimeout(function(){
+				// console.log("开始动态图标"+iconPlayId);
+				// extensionRequestCapture(current_capture.url, current_capture.installationId);
+			// },100);
+			console.log("background已经异步进行全本抓取！");
+		}else{//server capture
+			pushRequest(request.url, request.data);
+		}
+		
 	}
 }); 
 
@@ -116,11 +127,113 @@ function changeIconPlay(){
 			var imgDataDot = ctx.getImageData(0,0,canvas.height,canvas.width);
 			chrome.browserAction.setIcon({imageData : imgDataDot});
 		},100);
+		console.log("1、interval的id为"+iconPlayId);
 	});
 }
 
 function changeIconStop(){
 	clearInterval(iconPlayId);
 	chrome.browserAction.setIcon({path : "icon.png"});
+	console.log('停止动态图标'+iconPlayId);
+}
+
+
+function getBdydHrefList(url, list){
+	var book_title = '';
+	
+	$.ajax({
+		type : "get",
+		url : url,
+		async : false,
+		success : function(result){
+			var dom = $.parseHTML(result);
+		    var div = $(dom).filter(".catList");
+		    var alist = $(div).find("a");
+		     
+			book_title = $(dom).filter(".catHead").find("h1").text();
+		    
+		    $(alist).each(function() { 
+		    	var title = $(this).text();
+		    	var href = "http://yd.baidu.com"+$(this).attr("href");
+		    	list.push([title,href]);
+		    });
+		    
+		    var pn = $(dom).find(".p_n a");
+		    $(pn).each(function() {
+		    	if($(this).text()=="下页"){
+		    		var href = $(this).attr("href");
+		    		getBdydHrefList(getUrlBaseUrl(url,href), list, book_title);
+		    	}
+		    });
+		}
+	});
+	return book_title;
+}
+
+function zipBdydHtml(list, book_title, idsArr){
+	var zip = new JSZip();
+	zip.file("ids", JSON.stringify(idsArr));
+    zip.file("title", book_title);
+    zip.file("total", ""+list.length);
+	$.each(list,function(n,value) {
+		var rclist = [];
+		getNextPage(rclist, value[1]);
+		zip.file(n+".title", value[0]);
+		zip.file(n+".html", combineHtml(rclist));
+	});
+	zip.generateAsync({type:"blob"})
+	.then(function(content) {
+	    // saveAs(content, "example4.zip");
+	    pushWithZip(content);
+	});
+}
+
+function combineHtml(rclist){
+	var html='';
+	$.each(rclist,function(n,value){
+		html += value;
+	});
+	return "<div class='r_c'>"+html+"</div>";
+}
+
+function getNextPage(list, baseHref){
+	$.ajax({
+		type : "get",
+		url : baseHref,
+		async : false,
+		success : function(result){
+			var content = $(result).find(".r_c").html();
+			list.push(content);
+			var nextPage = $(result).find(".p_n a");
+			$(nextPage).each(function() {
+		    	if($(this).text()=="下页"){
+		    		var href = $(this).attr("href");
+		    		getNextPage(list, getUrlBaseUrl(baseHref, href));
+		    	}
+		    });
+		}
+	});
+}
+
+function pushWithZip(blob){
+	var fd = new FormData();
+	fd.append("file", blob, "image.png");
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', 'http://192.168.0.64:9000/api/1/push/learnCloudWithZip', false);//同步
+	xhr.send(fd);
+}
+
+function getUrlBaseUrl(url, href){
+	var p = url.indexOf("?");
+	return url.substring(0,p) + href;
+}
+
+function extensionRequestCapture(catUrl, idsArr){
+	var list = [];
+	var book_title = getBdydHrefList(catUrl, list);
+	//console.log(list);
+	// idsArr = ['123'];
+	zipBdydHtml(list,book_title, idsArr);
+	sendPushStatus(true);
 }
 

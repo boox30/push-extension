@@ -68,7 +68,7 @@ $(document).ready(function(){
 	
 	$("#btn_push").click(function(){
 		if(!checkEmpty(caturl)){//不为空, 发送至background去请求
-			sendToServer('', '', '');
+			sendToServer('', '', '', true);
 		}else{
 			downUseNotEpub();
 		}
@@ -90,7 +90,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 		var title = request.title;
 		var content = request.content;
 		var url = request.url;
-		sendToServer(title, content, url);
+		sendToServer(title, content, url, false);
 		sendResponse({});
 	}else if(request.type == "epub-storage"){
 		var la=localStorage["lang"], link=0, fmt=localStorage["format"];
@@ -121,7 +121,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 	}
 }); 
 
-function sendToServer(title, content, url){
+function sendToServer(title, content, url, isAllCapture){
 	if(login_info.deviceList.length == 0){
 		$("#prompt_msg").text("你的账号还未绑定任何设备！");
 		return;
@@ -142,7 +142,8 @@ function sendToServer(title, content, url){
 		"url":caturl
 	};
 	disablePushBtn();
-	chrome.extension.sendRequest({type: "onyx-sendpush",  url: host_index + "/api/1/push/learnCloud", data: data}, function(response) {
+	var postUrl = isAllCapture?(host_index + "/api/1/push/learnCloudWithZip"):(host_index + "/api/1/push/learnCloud");
+	chrome.extension.sendRequest({type: "onyx-sendpush",  url: postUrl, data: data, isAllCapture:isAllCapture}, function(response) {
 	  
 	});
 }
@@ -285,7 +286,9 @@ function restore_status()
 	$("#msg").show();
 	//checkHost
 	checkHost();
+	console.log("检查host和网址是否支持整本抓取");
 	getAutoLogin();
+	console.log("完成数据初始化");
 }
 
 function checkHost(){
