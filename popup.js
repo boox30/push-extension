@@ -1,5 +1,5 @@
-var host_index = "https://store.onyx-international.cn";
-// var host_index = "http://192.168.0.64:9000";
+// var host_index = "https://store.onyx-international.cn";
+var host_index = "http://192.168.0.64:9000";
 var cookie_name = "ngStorage-g";
 
 var login_info =

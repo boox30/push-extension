@@ -137,7 +137,7 @@ function changeIconStop(){
 
 function getBdydHrefList(url){
 	var book_title = '';
-	var list = [];
+	
 	$.ajax({
 		type : "get",
 		url : url,
@@ -151,16 +151,16 @@ function getBdydHrefList(url){
 		    $(alist).each(function() { 
 		    	var title = $(this).text();
 		    	var href = "http://yd.baidu.com"+$(this).attr("href");
-		    	list.push([title,href]);
+		    	urlList.push([title,href]);
 		    });
 		    
 		    var pn = $(dom).find(".p_n a:contains(下页)");
 		    
 	    	if(pn.length>0){
 	    		var href = $(pn).attr("href");
-	    		getBdydHrefList(getUrlBaseUrl(url,href), list);
+	    		getBdydHrefList(getUrlBaseUrl(url,href));
 	    	}else{//last done
-	    		downHrefList(book_title, list);
+	    		downHrefList(book_title);
 	    	}
 		}
 		
@@ -193,7 +193,7 @@ function pushWithZip(blob, postUrl){
 	    	sendPushStatus(true);
 	    }
 	};
-	xhr.open('POST', false?postUrl:'http://192.168.0.64:9000/api/1/push/learnCloudWithZip', true);//异步
+	xhr.open('POST', postUrl, true);//异步
 	xhr.send(fd);
 }
 
@@ -244,9 +244,9 @@ var contentList = [];
 var book_title = '';
 var urlList = [];
 var cur_chapter_index = 0;
-function downHrefList(book_title, urlList){
+function downHrefList(book_title){
 	this.book_title = book_title;
-	this.urlList = urlList;
+	console.log("章节列表长度："+urlList.length);
 	nextChapter();
 }
 function nextChapter(){
