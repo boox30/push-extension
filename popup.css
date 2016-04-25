@@ -23,12 +23,20 @@ li{
 }
 
 .content{
-	margin:0 10px;
+	margin:0 auto;
+}
+.content p{
+	padding:0 10px;
 }
 
-ul.meul>li{
+ul>li{
 	clear: both;
+}
+ul.loginul>li{
 	height:40px;
+}
+ul.loginul>li:last-child{
+	height:auto;
 }
 
 ul#form>li label{
@@ -39,12 +47,12 @@ ul#form>li label{
 
 ul#form>li input{
 	float:left;
-	width:150px;
+	width:160px;
 }
 
 ul#form li input#btn_ok{
 	float:right;
-	margin-right:20px;
+	margin-right:10px;
 	width:60px;
 }
 #prompt{
@@ -56,7 +64,6 @@ ul#form li input#btn_ok{
 }
 #logOut{
 	float: right;
-	margin-right:20px;
 }
 #device_par{
 	height:auto;
@@ -82,4 +89,10 @@ ul#form li input#btn_ok{
 }
 #push-line{
 	height: 30px;
+}
+.meul{
+	padding:0 10px;
+}
+.loginul{
+	padding:0 10px;
 }

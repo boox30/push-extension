@@ -74,6 +74,16 @@ $(document).ready(function(){
 		}
 	});
 	
+	$("#push_local>a").click(function(){
+		$("#uploadfile").trigger('click'); 
+	});
+	
+	
+	$("body").on('change', "#uploadfile" ,function(){ 
+		console.log("上传");
+		uploadFile();
+	});
+	
 });
 
 
@@ -142,7 +152,7 @@ function sendToServer(title, content, url, isAllCapture){
 		"url":caturl
 	};
 	disablePushBtn();
-	var postUrl = isAllCapture?(host_index + "/api/1/push/learnCloudWithZip"):(host_index + "/api/1/push/learnCloud");
+	var postUrl = isAllCapture?(host_index + "/api/1/push/saveAndPush"):(host_index + "/api/1/push/leanCloud");
 	chrome.extension.sendRequest({type: "onyx-sendpush",  url: postUrl, data: data, isAllCapture:isAllCapture}, function(response) {
 	  
 	});
@@ -340,4 +350,26 @@ function setLoginCookie(data){
 	chrome.cookies.set({url:host_index, name:cookie_name, value: cookieVal, expirationDate:timestamp});
 }
 
+function uploadFile(){
+	var idsArr = getSelectinstallationIds();
+	var file = $("#uploadfile").val();
+	var fileName = getFileName(file);
+	$("#prompt_msg").text("正在发送中");
+	$.ajaxFileUpload({  
+        url:host_index + "/api/1/push/localPush?installationId="+JSON.stringify(idsArr)+"&fileName="+fileName,            //需要链接到服务器地址  
+        secureuri:false,  
+        dataType: "text",
+        fileElementId:'uploadfile',                        //文件选择框的id属性
+        success: function(data, status){     
+            console.log(data);
+            $("#prompt_msg").text("发送成功！");
+        },error: function (data, status, e){ 
+            $("#prompt_msg").text("发送失败！");
+        }  
+    });  
+}
+function getFileName(o){
+    var pos=o.lastIndexOf("\\");
+    return o.substring(pos+1);  
+}
 

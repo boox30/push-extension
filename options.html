@@ -9,7 +9,7 @@
 <div id="login_div" class="main">
 	<h2 id="login_title" class="title">ONYX书城 - 登录</h2>
 	<div class="content">
-		<ul id="form" class="meul">
+		<ul id="form" class="loginul">
 			<li>
 				<label>用户名：</label>
 				<input id="email" name="email" type="text" value="wsc@onyx-international.com" placeholder="邮箱" />
@@ -29,14 +29,16 @@
 <div id="welcome" class="main">
 	<h2 id="welcome_title" class="title">Hello,ONYX书城！</h2>
 	<div class="content">
+		<p>当前用户：<a href="#" id="userFullName">(张三)</a><a href="#" id="logOut">注销</a></p>
 		<ul class="meul">
-			<li>
-				<p>当前用户：<a href="#" id="userFullName">(张三)</a><a href="#" id="logOut">注销</a></p>
-			</li>
 			<li id="push-line">
-				<input id="btn_push" value="PushToBoox" type="button"><em>（将网页发送到阅读器）</em>
+				<input id="btn_push" value="PushToBoox" type="button" /><em>（将网页发送到阅读器）</em>
 			</li>
 			<li style="display:none;"><a href="#" id="downUrl">epub下载地址</a></li>
+			<li id="push_local">
+				<a href="javascrpit:void(0);">点此发送本地文件</a>
+				<input id="uploadfile" name="file" type="file" class="file" style="display:none;" />
+			</li>
 		</ul>
 		
 	</div>
@@ -47,4 +49,5 @@
 </body>
 <script src="jquery-2.0.0.min.js"></script>
 <script src="popup.js"></script>
+<script src="ajaxfileupload.js"></script>
 </html>
