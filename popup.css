@@ -2,6 +2,8 @@
 	min-width: 250px;
 	background-image: url("skin.jpg");
 }
+a:visited {color:#0000ff;}
+
 .main{
 	margin:0 auto;
 	width: 250px;
@@ -58,9 +60,11 @@ ul#form li input#btn_ok{
 #prompt{
 	color:gray;
 	height:16px;
+	margin-top:5px;
 }
 #prompt_msg{
 	margin:0 auto;
+	display: inline-block;
 }
 #logOut{
 	float: right;
@@ -95,4 +99,30 @@ ul#form li input#btn_ok{
 }
 .loginul{
 	padding:0 10px;
+}
+#search_box{
+	width:82px;
+	padding-right:21px;
+}
+#bar{
+	display:inline-block;
+	width:20px;
+	text-align:center;
+}
+#push_local{
+	position:relative;
+}
+#search_btn{
+	position:absolute;
+	display:block;
+	width:19px;
+	height:19px;
+	top:1px;
+	right:0px;
+	background-image: URL('search.png');
+	background-size:cover;
+	border-left:1px solid #ccc;
+}
+#record{
+	float:right;
 }

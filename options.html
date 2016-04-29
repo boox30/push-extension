@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Onyx书城扩展-选项</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" type="text/css" href="popup.css" />
 	</head>
@@ -36,18 +37,24 @@
 			</li>
 			<li style="display:none;"><a href="#" id="downUrl">epub下载地址</a></li>
 			<li id="push_local">
-				<a href="javascrpit:void(0);">点此发送本地文件</a>
+				<a id="localpush_btn" href="javascrpit:void(0);">点此发送本地文件</a>
 				<input id="uploadfile" name="file" type="file" class="file" style="display:none;" />
+				<span id="bar">|</span>
+				<input type="text" placeholder="在线搜书" id="search_box" />
+				<a id="search_btn" href="#"> </a>
 			</li>
+				
 		</ul>
 		
 	</div>
 </div>
-<div id="prompt">
+<div id="prompt" class="main">
 	<p id="prompt_msg">&nbsp;</p>
+	<a id="record" href="record.html" target="_blank">显示发送记录</a>
 </div>
 </body>
 <script src="jquery-2.0.0.min.js"></script>
 <script src="popup.js"></script>
 <script src="ajaxfileupload.js"></script>
+<script src="gbk.js"></script>
 </html>

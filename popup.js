@@ -1,5 +1,5 @@
-// var host_index = "https://store.onyx-international.cn";
-var host_index = "http://192.168.0.64:9000";
+var host_index = "https://store.onyx-international.cn";
+// var host_index = "http://192.168.0.64:9000";
 var cookie_name = "ngStorage-g";
 
 var login_info =
@@ -74,14 +74,19 @@ $(document).ready(function(){
 		}
 	});
 	
-	$("#push_local>a").click(function(){
+	$("#localpush_btn").click(function(){
 		$("#uploadfile").trigger('click'); 
 	});
-	
 	
 	$("body").on('change', "#uploadfile" ,function(){ 
 		console.log("上传");
 		uploadFile();
+	});
+	
+	$("#search_btn").click(function(){
+		var bookName = $("#search_box").val();
+		var url = "http://yuedu.baidu.com/search?pbook=0&word="+$URL.encode(bookName);
+		chrome.tabs.create({url:url});
 	});
 	
 });
@@ -239,7 +244,7 @@ function initSelected(){
 		var device = login_info.deviceList[i];
 		var noLeanCloud = checkEmpty(device.installationMap.leanCloud);
 		var li = $("<li><input type='checkbox' idstr='" + device.idString + "' " + (device.selected?"checked ":" ") + (noLeanCloud?"disabled='disabled' ":" ") + "/>"
-		 + device.model + "-" + (checkEmpty(device.name)?i:device.name) + (noLeanCloud?"<font color='red'>（设备未注册推送服务）</font>":"")
+		 + device.model + " - " + (checkEmpty(device.name)?i:device.name) + (noLeanCloud?"<font color='red'>（设备未注册推送服务）</font>":"")
 		 + "</li>");
 		$(ul).append(li);
 	}
@@ -305,6 +310,7 @@ function checkHost(){
 	chrome.tabs.getSelected(function(tabs){
 		chrome.extension.sendRequest({type: "onyx-checkincludehost_pushstatus", cur_url : tabs.url}, function(response) {
 		  var caturl = response.caturl;
+		  var forbidden = response.forbidden;
 		  if(!checkEmpty(caturl)){//不为空
 		  	$("#push-line > em").text("（支持整本书发送）");
 		  	this.caturl = caturl;
@@ -313,6 +319,9 @@ function checkHost(){
 		  var current_cap = response.current_capture;
 		  if(!checkEmpty(current_cap)){
 		  	disablePushBtn();
+		  }else if(forbidden){
+		  	$("#btn_push").attr("disabled",true);
+		  	$("#push-line > em").text("（当前网页无内容）");
 		  }
 		});
 	});

@@ -49,6 +49,7 @@ function pushRequest(url, r_data){
          success: function(data){
          	data_json = JSON.parse(data);
             console.log("完成push，下载路径"+data_json.url);
+            saveRecord(r_data.title+".epub", data_json.url);
 		    sendPushStatus(true);
          },
          error:function(data){
@@ -69,8 +70,12 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse){
 	if (request.type == "onyx-checkincludehost_pushstatus"){
 		var url = request.cur_url;
 		var caturl = changeUrl(url);
+		var forbidden = false;
+		if(url.substr(0,4)!='http'){
+			forbidden = true;
+		}
 		sendResponse(
-			{"caturl": caturl, "current_capture": current_capture}
+			{"caturl": caturl, "current_capture": current_capture, "forbidden":forbidden}
 		);
 		console.log("background完成了host检测！");
 	}else if(request.type == "onyx-sendpush"){
@@ -190,6 +195,8 @@ function pushWithZip(blob, postUrl){
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange=function(){
 	    if (xhr.readyState==4 && xhr.status==200){
+	    	data_json = JSON.parse(xhr.responseText);
+	    	saveRecord(book_title+".epub", data_json.url);
 	    	sendPushStatus(true);
 	    }
 	};
@@ -256,4 +263,17 @@ function nextChapter(){
 	}
 	getNextPage(contentList, urlList[cur_chapter_index][1], cur_chapter_index);
 	cur_chapter_index++;	
+}
+
+function saveRecord(fileName, path){
+	var rec = new Array(fileName, path);
+	if(typeof(localStorage["onyxPushRecord"]) == "undefined"){
+		var storage = {"push_record":new Array(rec)};	
+		localStorage["onyxPushRecord"] = JSON.stringify(storage);
+	}else{
+		local_record = JSON.parse(localStorage["onyxPushRecord"]);
+		var optionValue = local_record["push_record"];
+		optionValue.unshift(rec);
+		localStorage["onyxPushRecord"] = JSON.stringify(local_record);
+	}
 }

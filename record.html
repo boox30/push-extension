@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Onyx书城扩展-发送记录</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style type="text/css">
+			body {
+			    margin: 0;
+			    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			    font-size: 14px;
+			    line-height: 20px;
+			    color: #333333;
+			    background-image: url("skin.jpg");
+			}
+			#title{
+				text-align: center;
+			}
+			#main{
+				width:800px;
+				margin:0 auto;
+			}
+			.table{
+				border-spacing: 0;
+				width: 100%;
+			}
+			.table-bordered{
+				border: 1px solid #c4d1d9;
+				text-align: center;
+				border-collapse: separate;
+				border-radius: 4px;
+			}
+			table.table-bordered th {
+			    background: #e9edf1;
+			    border-left: none;
+			    height: 30px;
+    			line-height: 30px
+			}
+			table.table-bordered td {
+			    border-top: 1px solid #c4d1d9;
+			    border-left: 1px solid #c4d1d9;
+			    height: 40px;
+    			line-height: 40px;
+			}
+			.table th, .table td {
+			    padding: 8px;
+			    line-height: 20px;
+			    vertical-align: top;
+			    border-top: 1px solid #dddddd;
+			}
+			.tabr1{
+				width:80%;
+			}
+			.tabr2{
+				width:20%;
+			}
+			table.table-bordered td.tabs1{
+				border-left: none;
+				text-align: left;
+				height: 20px;
+    			line-height: 20px;
+    			padding-left:20px;
+    			font-size: 14px;
+			}
+			table.table-bordered td.tabs1 a{
+				font-size: 10px;
+				color: rgb(85, 102, 221);
+			    display: inline-block;
+			    max-width: 600px;
+			    overflow: hidden;
+			    padding-bottom: 1px;
+			    padding-top: 4px;
+			    text-decoration: none;
+			    text-overflow: ellipsis;
+			    white-space: nowrap;
+			}
+			a.del_btn{
+				text-decoration: none;
+				-webkit-margin-end: 12px;
+    			color: #777;
+    			line-height:50px;
+			}
+			a.del_btn:hover{
+				text-decoration: underline;
+			}
+			
+		</style>
+	</head>
+<body>
+	<div id="main">
+		<div id="title">
+			<h3>消息推送记录</h3>
+		</div>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th class="tabr1">文件名/下载路径</th>
+					<th class="tabr2">操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				
+			</tbody>
+		</table>
+	</div>
+</body>
+<script src="jquery-2.0.0.min.js"></script>
+<script src="record.js"></script>
+</html>
